@@ -41,5 +41,16 @@ namespace ChessLogic
         {
             return dirs.SelectMany(dir => MovePositionsInDir(from, board, dir));
         }
+
+
+        //метод для проверки может ли фигура сбить короля(цвет не проверяется так как GetMoves не может вернуть клетку где стоит наша фигура
+        public virtual bool CanCaptureTheKing(Position from, Board board)
+        {
+            return GetMoves(from, board).Any(move =>
+            {
+                Piece piece = board[move.ToPos];
+                return piece !=null && piece.Type == PieceType.King;
+            });
+        }
     }
 }

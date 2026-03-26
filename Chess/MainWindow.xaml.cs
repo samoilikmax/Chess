@@ -10,6 +10,9 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using ChessLogic;
 
+
+//курсор 7 часть
+//переопределение метода взятия короля для пешки 8 часть
 namespace Chess
 {
     /// <summary>

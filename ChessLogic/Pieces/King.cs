@@ -56,7 +56,19 @@ namespace ChessLogic
 
         public override IEnumerable<Move> GetMoves(Position from, Board board)
         {
-            return MovePositions(from, board).Select(to => new NormalMove(from, to));
+            foreach (Position to in  MovePositions(from, board))
+            {
+                yield return new NormalMove(from, to);
+            }
+        }
+
+        public override bool CanCaptureTheKing(Position from, Board board)
+        {
+            return MovePositions(from, board).Any(to =>
+            {
+                Piece piece = board[to];
+                return piece != null && piece.Type == PieceType.King;
+            });
         }
     }
 }

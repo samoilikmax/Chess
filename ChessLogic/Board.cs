@@ -57,8 +57,6 @@ namespace ChessLogic
             }
         }
 
-        //Вспомогательные методы(позже будут использоваться)
-
         public static bool IsInside(Position pos)
         {
             return pos.Row >= 0 && pos.Column >= 0 && pos.Row < 8 && pos.Column < 8;
@@ -67,6 +65,49 @@ namespace ChessLogic
         public bool IsEmpty(Position pos)
         {
             return this[pos] == null;
+        }
+
+
+        //метод для поиска непустых клеток
+        public IEnumerable<Position> PiecePositions()
+        {
+            for (int r = 0; r < 8; r++)
+            {
+                for(int c = 0; c < 8; c++)
+                {
+                    Position pos = new Position(r, c);
+                    if (!IsEmpty(pos))
+                    {
+                        yield return pos;
+                    }
+                }
+            }
+        }
+
+        public IEnumerable<Position> PiecePositionsFor(Player player)
+        {
+            return PiecePositions().Where(pos => this[pos].Color ==player);
+        }
+
+
+        //метод который находит все фигуры соперника и проверяет дает ли какая-нибудь из них шах королю
+        public bool IsInCheck(Player player)
+        {
+            return PiecePositionsFor(player.Opponent()).Any(pos =>
+            {
+                Piece piece = this[pos];
+                return piece.CanCaptureTheKing(pos, this);
+            });
+        }
+
+        public Board Copy()
+        {
+            Board copy = new Board();
+            foreach (Position pos in PiecePositions())
+            {
+                copy[pos] = this[pos];
+            }
+            return copy;
         }
     }
 }
