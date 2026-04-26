@@ -14,7 +14,6 @@ namespace ChessLogic
         public abstract void Execute(Board board);
 
         //метод который на копии доски проверяет не остается ли король под шахом
-
         public virtual bool IsLegal(Board board)
         {
             Player player = board[FromPos].Color;
