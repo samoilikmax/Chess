@@ -11,6 +11,12 @@ namespace ChessLogic
     {
         private readonly Piece[,] pieces = new Piece[8, 8];
 
+        private readonly Dictionary<Player, Position> pawnSkipPosition = new Dictionary<Player, Position>
+        {
+            {Player.White, null },
+            {Player.Black, null },
+        };
+
         public Piece this[int row, int col]
         {
             get { return pieces[row, col]; }
@@ -21,6 +27,16 @@ namespace ChessLogic
         {
             get { return this[pos.Row, pos.Column]; }
             set { this[pos.Row, pos.Column] = value; }
+        }
+
+        public Position GetPawnSkipPosition(Player player)
+        {
+            return pawnSkipPosition[player];
+        }
+
+        public void SetPawnSkipPosition(Player player, Position pos)
+        {
+            pawnSkipPosition[player] = pos;
         }
 
         public static Board Initial()
