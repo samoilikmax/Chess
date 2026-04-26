@@ -11,8 +11,6 @@ using System.Windows.Shapes;
 using ChessLogic;
 
 
-//курсор 7 часть
-//переопределение метода взятия короля для пешки 8 часть
 namespace Chess
 {
     /// <summary>
@@ -65,6 +63,11 @@ namespace Chess
 
         private void BoardGrid_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            if (IsMenuOnScreen())
+            {
+                return;
+            }
+
             Point point = e.GetPosition(BoardGrid);
             Position pos = ToSquarePosition(point);
 
@@ -81,8 +84,8 @@ namespace Chess
         private Position ToSquarePosition(Point point)
         {
             double squareSize = BoardGrid.ActualWidth / 8;
-            int row = (int)(point.Y/squareSize);
-            int col = (int)(point.X/squareSize);
+            int row = (int)(point.Y / squareSize);
+            int col = (int)(point.X / squareSize);
             return new Position(row, col);
         }
 
@@ -102,16 +105,46 @@ namespace Chess
             selectedPos = null;
             HideHighlights();
 
-            if(moveCache.TryGetValue(pos, out Move move))
+            if (moveCache.TryGetValue(pos, out Move move))
             {
-                HandleMove(move);
+                if(move.Type == MoveType.PawnPromotion)
+                {
+                    HandlePromotion(move.FromPos, move.ToPos);
+                }
+                else
+                {
+                    HandleMove(move);
+                }
             }
+        }
+
+        
+        //Ставит игру на паузу и показывает меню превращения пешки
+        private void HandlePromotion(Position from, Position to)
+        {
+            pieceImages[to.Row, to.Column].Source = Images.GetImage(gameState.CurrentPlayer, PieceType.Pawn);
+            pieceImages[from.Row, from.Column].Source = null;
+
+            PromotionMenu promMenu = new PromotionMenu(gameState.CurrentPlayer);
+            MenuContainer.Content = promMenu;
+
+            promMenu.PieceSelected += type =>
+            {
+                MenuContainer.Content = null;
+                Move promMove = new PawnPromotion(from, to, type);
+                HandleMove(promMove);
+            };
         }
 
         private void HandleMove(Move move)
         {
             gameState.MakeMove(move);
             DrawBoard(gameState.Board);
+
+            if (gameState.IsGameOver())
+            {
+                ShowGameOver();
+            }
         }
 
         private void CacheMoves(IEnumerable<Move> moves)
@@ -128,7 +161,7 @@ namespace Chess
         {
             Color color = Color.FromArgb(150, 125, 255, 125);
 
-            foreach(Position to in moveCache.Keys)
+            foreach (Position to in moveCache.Keys)
             {
                 highlights[to.Row, to.Column].Fill = new SolidColorBrush(color);
             }
@@ -136,10 +169,43 @@ namespace Chess
         //убирает подсветку
         private void HideHighlights()
         {
-            foreach(Position to in moveCache.Keys)
+            foreach (Position to in moveCache.Keys)
             {
                 highlights[to.Row, to.Column].Fill = Brushes.Transparent;
             }
+        }
+
+        private bool IsMenuOnScreen()
+        {
+            return MenuContainer.Content != null;
+        }
+
+        //выбор команды в меню
+        private void ShowGameOver()
+        {
+            GameOverMenu gameOverMenu = new GameOverMenu(gameState);
+            MenuContainer.Content = gameOverMenu;
+
+            gameOverMenu.OptionSelected += option =>
+            {
+                if (option == Option.Restart)
+                {
+                    MenuContainer.Content = null;
+                    RestartGame();
+                }
+                else
+                {
+                    Application.Current.Shutdown();
+                }
+            };
+        }
+        //перезапуск игры
+        private void RestartGame()
+        {
+            HideHighlights();
+            moveCache.Clear();
+            gameState = new GameState(Player.White, Board.Initial());
+            DrawBoard(gameState.Board);
         }
     }
 }
