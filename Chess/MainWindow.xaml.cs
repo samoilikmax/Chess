@@ -24,6 +24,8 @@ namespace Chess
 
         private GameState gameState;
         private Position selectedPos = null;
+        private bool isBoardFlipped = false; // отдельная переменная состояния переворота
+
         public MainWindow()
         {
             InitializeComponent();
@@ -32,7 +34,8 @@ namespace Chess
             gameState = new GameState(Player.White, Board.Initial());
             DrawBoard(gameState.Board);
         }
-        //Создает 64 пустые клетки
+
+        // Создает 64 пустые клетки
         private void InitializeBoard()
         {
             for (int r = 0; r < 8; r++)
@@ -48,7 +51,7 @@ namespace Chess
                 }
         }
 
-        //Метод для отрисовки начального положения фигур
+        // Метод для отрисовки начального положения фигур
         private void DrawBoard(Board board)
         {
             for (int r = 0; r < 8; r++)
@@ -57,6 +60,30 @@ namespace Chess
                 {
                     Piece piece = board[r, c];
                     pieceImages[r, c].Source = Images.GetImage(piece);
+                }
+            }
+        }
+
+        // Переворачивает доску в зависимости от того чей ход
+        private void FlipBoard()
+        {
+            isBoardFlipped = !isBoardFlipped;
+            int angle = isBoardFlipped ? 180 : 0;
+
+            // поворачиваем саму доску
+            BoardGrid.RenderTransformOrigin = new Point(0.5, 0.5);
+            BoardGrid.RenderTransform = new RotateTransform(angle);
+
+            // каждую фигуру поворачиваем обратно чтобы она не была вверх ногами
+            for (int r = 0; r < 8; r++)
+            {
+                for (int c = 0; c < 8; c++)
+                {
+                    pieceImages[r, c].RenderTransformOrigin = new Point(0.5, 0.5);
+                    pieceImages[r, c].RenderTransform = new RotateTransform(angle);
+
+                    highlights[r, c].RenderTransformOrigin = new Point(0.5, 0.5);
+                    highlights[r, c].RenderTransform = new RotateTransform(angle);
                 }
             }
         }
@@ -86,6 +113,10 @@ namespace Chess
             double squareSize = BoardGrid.ActualWidth / 8;
             int row = (int)(point.Y / squareSize);
             int col = (int)(point.X / squareSize);
+
+            // инверсия не нужна — e.GetPosition(BoardGrid) уже учитывает
+            // трансформацию самого BoardGrid и возвращает правильные координаты
+
             return new Position(row, col);
         }
 
@@ -107,7 +138,7 @@ namespace Chess
 
             if (moveCache.TryGetValue(pos, out Move move))
             {
-                if(move.Type == MoveType.PawnPromotion)
+                if (move.Type == MoveType.PawnPromotion)
                 {
                     HandlePromotion(move.FromPos, move.ToPos);
                 }
@@ -118,8 +149,7 @@ namespace Chess
             }
         }
 
-        
-        //Ставит игру на паузу и показывает меню превращения пешки
+        // Ставит игру на паузу и показывает меню превращения пешки
         private void HandlePromotion(Position from, Position to)
         {
             pieceImages[to.Row, to.Column].Source = Images.GetImage(gameState.CurrentPlayer, PieceType.Pawn);
@@ -140,6 +170,7 @@ namespace Chess
         {
             gameState.MakeMove(move);
             DrawBoard(gameState.Board);
+            FlipBoard(); // переворачиваем доску после каждого хода
 
             if (gameState.IsGameOver())
             {
@@ -156,7 +187,8 @@ namespace Chess
                 moveCache[move.ToPos] = move;
             }
         }
-        //подсвечивает зеленым
+
+        // Подсвечивает зеленым доступные ходы
         private void ShowHighlights()
         {
             Color color = Color.FromArgb(150, 125, 255, 125);
@@ -166,7 +198,8 @@ namespace Chess
                 highlights[to.Row, to.Column].Fill = new SolidColorBrush(color);
             }
         }
-        //убирает подсветку
+
+        // Убирает подсветку
         private void HideHighlights()
         {
             foreach (Position to in moveCache.Keys)
@@ -180,7 +213,7 @@ namespace Chess
             return MenuContainer.Content != null;
         }
 
-        //выбор команды в меню
+        // Выбор команды в меню конца игры
         private void ShowGameOver()
         {
             GameOverMenu gameOverMenu = new GameOverMenu(gameState);
@@ -199,13 +232,28 @@ namespace Chess
                 }
             };
         }
-        //перезапуск игры
+
+        // Перезапуск игры
         private void RestartGame()
         {
             HideHighlights();
             moveCache.Clear();
+            isBoardFlipped = false;
             gameState = new GameState(Player.White, Board.Initial());
             DrawBoard(gameState.Board);
+
+            // сбрасываем поворот на 0
+            int angle = 0;
+            BoardGrid.RenderTransformOrigin = new Point(0.5, 0.5);
+            BoardGrid.RenderTransform = new RotateTransform(angle);
+            for (int r = 0; r < 8; r++)
+                for (int c = 0; c < 8; c++)
+                {
+                    pieceImages[r, c].RenderTransformOrigin = new Point(0.5, 0.5);
+                    pieceImages[r, c].RenderTransform = new RotateTransform(angle);
+                    highlights[r, c].RenderTransformOrigin = new Point(0.5, 0.5);
+                    highlights[r, c].RenderTransform = new RotateTransform(angle);
+                }
         }
     }
 }
