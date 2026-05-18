@@ -11,7 +11,7 @@ namespace ChessLogic
         public abstract MoveType Type { get; }
         public abstract Position FromPos { get; }
         public abstract Position ToPos { get; }
-        public abstract void Execute(Board board);
+        public abstract bool Execute(Board board);
 
         //метод который на копии доски проверяет не остается ли король под шахом
         public virtual bool IsLegal(Board board)
