@@ -88,6 +88,12 @@
             }
         }
 
+        // Вызывается когда у игрока вышло время
+        public void SetResultByTimeout(Player winner)
+        {
+            Result = Result.Win(winner);
+        }
+
         public bool IsGameOver()
         {
             return Result != null;

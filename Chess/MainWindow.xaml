@@ -11,7 +11,6 @@
         Background="#101010"
         KeyDown="Window_KeyDown">
     <Viewbox>
-        <!-- Внешняя обёртка: три колонки — панель слева, доска, панель справа -->
         <Grid Width="800" Height="600">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="100"/>
@@ -19,29 +18,47 @@
                 <ColumnDefinition Width="100"/>
             </Grid.ColumnDefinitions>
 
-            <!-- Левая панель: белые фигуры съеденные чёрными -->
+            <!-- Левая панель: таймер чёрных + белые фигуры съеденные чёрными -->
             <Border Grid.Column="0"
                     Background="#1a1a1a"
                     Margin="4"
                     CornerRadius="6">
                 <StackPanel>
+                    <Border Background="#111"
+                            CornerRadius="4"
+                            Margin="6,8,6,4"
+                            Padding="4,6">
+                        <StackPanel>
+                            <TextBlock Text="BLACK"
+                                       Foreground="#aaa"
+                                       FontSize="10"
+                                       HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="BlackTimerText"
+                                       Text="--:--"
+                                       Foreground="#eee"
+                                       FontSize="20"
+                                       FontFamily="Consolas"
+                                       FontWeight="Bold"
+                                       HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
                     <TextBlock Text="Captured"
-                               Foreground="#888"
-                               FontSize="11"
+                               Foreground="#666"
+                               FontSize="10"
                                HorizontalAlignment="Center"
-                               Margin="0,8,0,4"/>
+                               Margin="0,8,0,2"/>
                     <TextBlock Text="by Black"
-                               Foreground="#888"
-                               FontSize="11"
+                               Foreground="#666"
+                               FontSize="10"
                                HorizontalAlignment="Center"
-                               Margin="0,0,0,8"/>
+                               Margin="0,0,0,4"/>
                     <WrapPanel x:Name="CapturedByBlack"
                                HorizontalAlignment="Center"
                                Margin="4,0"/>
                 </StackPanel>
             </Border>
 
-            <!-- Центр: доска (не трогаем совсем) -->
+            <!-- Центр: доска -->
             <Grid x:Name="BoardGrid"
                   Grid.Column="1"
                   Width="600"
@@ -50,35 +67,46 @@
                 <Grid.Background>
                     <ImageBrush ImageSource="/Icons/Board.png"/>
                 </Grid.Background>
-
-                <UniformGrid x:Name="HighlightGrid"
-                             Rows="8"
-                             Columns="8"/>
-
-                <UniformGrid x:Name="PieceGrid"
-                             Rows="8"
-                             Columns="8"
+                <UniformGrid x:Name="HighlightGrid" Rows="8" Columns="8"/>
+                <UniformGrid x:Name="PieceGrid" Rows="8" Columns="8"
                              RenderOptions.BitmapScalingMode="HighQuality"/>
-
                 <ContentControl x:Name="MenuContainer"/>
             </Grid>
 
-            <!-- Правая панель: чёрные фигуры съеденные белыми -->
+            <!-- Правая панель: таймер белых + чёрные фигуры съеденные белыми -->
             <Border Grid.Column="2"
                     Background="#1a1a1a"
                     Margin="4"
                     CornerRadius="6">
                 <StackPanel>
+                    <Border Background="#111"
+                            CornerRadius="4"
+                            Margin="6,8,6,4"
+                            Padding="4,6">
+                        <StackPanel>
+                            <TextBlock Text="WHITE"
+                                       Foreground="#aaa"
+                                       FontSize="10"
+                                       HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="WhiteTimerText"
+                                       Text="--:--"
+                                       Foreground="#eee"
+                                       FontSize="20"
+                                       FontFamily="Consolas"
+                                       FontWeight="Bold"
+                                       HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
                     <TextBlock Text="Captured"
-                               Foreground="#888"
-                               FontSize="11"
+                               Foreground="#666"
+                               FontSize="10"
                                HorizontalAlignment="Center"
-                               Margin="0,8,0,4"/>
+                               Margin="0,8,0,2"/>
                     <TextBlock Text="by White"
-                               Foreground="#888"
-                               FontSize="11"
+                               Foreground="#666"
+                               FontSize="10"
                                HorizontalAlignment="Center"
-                               Margin="0,0,0,8"/>
+                               Margin="0,0,0,4"/>
                     <WrapPanel x:Name="CapturedByWhite"
                                HorizontalAlignment="Center"
                                Margin="4,0"/>
